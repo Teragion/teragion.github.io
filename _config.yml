@@ -2,13 +2,12 @@
 #
 # Use of `relative_permalinks` ensures post links from the index work properly.
 permalink:           pretty
-# relative_permalinks: true
 
 # Setup
-title:               GHS Seafarer
-tagline:             ''
-description:         'Teragion's personal blog'
-url:                 https://teragion.github.io
+title:                GHS Seafarer
+tagline:             'Good Luck and Fair Seas'
+description:         'descriptions will... ehh... somehow, be added'
+url:                 http://teragion.github.io
 baseurl:             ''
 paginate:            5
 
@@ -20,4 +19,9 @@ author:
 
 # Custom vars
 version:             1.0.0
-gems: [jekyll-paginate]
+github:
+  repo:              https://github.com/Teragion/teragion.github.io
+
+# Plugins
+plugins:
+  - jekyll-paginate
