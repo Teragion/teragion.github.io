@@ -9,7 +9,7 @@ tagline:             'Good Luck and Fair Seas'
 description:         'descriptions will... ehh... somehow, be added'
 url:                 http://teragion.github.io
 baseurl:             ''
-paginate:            5
+paginate:            1
 
 # About/contact
 author:
