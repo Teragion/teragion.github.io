@@ -1,0 +1,158 @@
+I"Ò<h2 id="fireworks">Fireworks!</h2>
+
+<canvas id="canvas" height="400px" width="800px"></canvas>
+
+<script>
+function firework()
+{
+    /** @type {HTMLCanvasElement} */
+    let canvas = (/** @type {HTMLCanvasElement} */ document.getElementById("canvas"));
+    let context = canvas.getContext('2d');
+
+    let fireworks = [];
+    let dots = [];
+
+    let mouseX = -10;
+    let mouseY = -10;
+
+    canvas.onmousemove = function(event) {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+        let box = /** @type {HTMLCanvasElement} */(event.target).getBoundingClientRect();
+        mouseX -= box.left;
+        mouseY -= box.top;
+    };
+
+    canvas.onmouseleave = function() {
+        mouseX = -10;
+        mouseY = -10;
+    };
+
+    let ButtonDown = false;
+
+    canvas.onmousedown = function(event) {
+        if ( (mouseX > 0) && (mouseY > 0) ) {
+            if(mouseX >= 310 && mouseX <= 390 && mouseY >= 350 && mouseY <= 380) {
+                ButtonDown = !ButtonDown;
+            } else {
+                console.log("generating firework towards " + mouseX + " " + mouseY);
+                generateFirework(mouseX, mouseY);
+            }
+        }
+    };
+    
+    function drawButton(context) {
+        context.beginPath();
+        context.rect(310, 350, 80, 50); 
+        if(ButtonDown) {
+            context.fillStyle = 'rgba(225, 180, 180, 0.5)';
+        } else { context.fillStyle = 'rgba(180, 180, 180, 0.5)'; }
+        context.fill();
+        context.lineWidth = 2;
+        if(ButtonDown) {
+            context.strokeStyle = 'rgba(255, 0, 0, 1)';
+        } else { context.strokeStyle = 'rgba(0, 0, 0, 1)'; }
+        context.stroke();
+        context.closePath();
+        context.font = '12pt Courier New';
+        if(ButtonDown) {
+            context.fillStyle = 'rgba(255, 0, 0, 1)';
+        } else { context.fillStyle = 'rgba(0, 0, 0, 1)'; }
+        context.fillText('Click Me!', 315, 370);
+    }
+    
+    function drawFireworkList(context, fireworks) {
+        fireworks.forEach(function(firework){
+            context.save();
+            context.fillStyle = "black";
+            context.lineWidth = 2;
+            context.beginPath();
+            context.arc(firework.x, firework.y, 3, 0, Math.PI * 2);
+            context.closePath();
+            context.fill();
+            context.restore();
+        });
+    }
+
+    function drawDotList(context,dots) {
+        dots.forEach(function(dot){
+            context.save();
+            context.fillStyle = `rgba(${dot.r},${dot.g},${dot.b},${dot.a})`;
+            context.lineWidth = 3;
+            context.fillRect(dot.x, dot.y, 6, 6);
+            context.restore();
+        });
+    }
+
+    function generateFirework(x, y) {
+        let x0 = Math.floor(Math.random() * 800);
+        let y0 = 400;
+
+        let vy = Math.floor(Math.random() * 30) + 170;
+        let tick = (vy - Math.sqrt(vy * vy - 80 * (400 - y))) / 40; // pre-compute the time until explosion 
+        let vx = (x - x0) / tick;
+
+        fireworks.push({"x":x0, "y":y0, "vx":vx, "vy":-vy, "destX":x, "exploded":false});
+    }
+
+    function generateExplosion(x, y) {
+        let count = Math.floor(Math.random() * 50) + 20;
+        let i = 0;
+        for(i = 0; i < count; i++) {
+            let vx = (Math.random() - 0.5) * 50;
+            let vy = (Math.random() - 0.5) * 50;
+            let r = Math.floor(Math.random() * 255);
+            let g = Math.floor(Math.random() * 255);
+            let b = Math.floor(Math.random() * 255);
+            let a = Math.random() + 0.5;
+            dots.push({"x":x, "y":y, "vx":vx, "vy":vy, "r":r, "g":g, "b":b, "a":a});
+        } 
+    }
+    
+    let startTime = Date.now();
+
+    function animate() {
+        let tick = Date.now() - startTime;
+        startTime = Date.now();
+        tick = tick / 300;
+
+        fireworks = fireworks.filter(
+            firework => firework.exploded == false
+            );
+        fireworks.forEach(function(firework){
+            firework.x += firework.vx * tick;
+            firework.y += firework.vy * tick;
+            firework.vy += 40 * tick; // gravity 
+            // if(Math.abs(firework.destX - firework.x) <= Math.abs(firework.vx / 10)) {
+            if(((firework.destX - firework.x) * (firework.vx) < 0) || firework.vy > 0) {
+                firework.exploded = true;
+                generateExplosion(firework.x, firework.y);
+            }
+        })
+        dots = dots.filter(
+            dot => ((dot.y>0)&&(dot.x>0)&&(dot.x<canvas.width)&&(dot.y<canvas.height))&&(dot.a>0)
+        );
+        dots.forEach(function(dot){
+            dot.x = dot.x + dot.vx * tick;
+            dot.y = dot.y + dot.vy * tick;
+            dot.vy += 10 * tick;
+            dot.a -= 0.3 * tick;
+        })
+        if(!ButtonDown) {
+            context.clearRect(0,0,canvas.width,canvas.height);
+        }
+        drawFireworkList(context, fireworks);
+        drawDotList(context, dots);
+        drawButton(context);
+        window.requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+/**
+ * Function to run the student's code
+ */
+window.onload = firework();
+</script>
+
+:ET

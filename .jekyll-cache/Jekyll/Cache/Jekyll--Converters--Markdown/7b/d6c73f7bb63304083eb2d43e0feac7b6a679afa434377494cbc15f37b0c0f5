@@ -1,0 +1,199 @@
+I"�m<h2 id="学习笔记">学习笔记</h2>
+
+<h3 id="uva-242">UVa 242</h3>
+
+<h4 id="题目">题目</h4>
+
+<p>Philatelists have collected stamps since long before postal workers were disgruntled.  An excess of stamps may be bad news to a country’s postal service, but good news to those that collect the excess stamps. The postal service works to minimize the number of stamps needed to provide seamless postage coverage. To this end you have been asked to write a program to assist the postal service.
+Envelope size restricts the number of stamps that can be used on one envelope. For example, if 1 cent and 3 cent stamps are available and an envelope can accommodate 5 stamps, all postage from 1 to 13 cents can be “covered”</p>
+
+<p>Output one line for each data set giving the maximal no-gap coverage followed by the stamp denominations that yield that coverage in the following format:</p>
+
+<p><code class="highlighter-rouge">max coverage = &lt; value &gt;: &lt; denominations &gt;</code></p>
+
+<h4 id="思路">思路</h4>
+
+<p><code class="highlighter-rouge">动态规划</code> <code class="highlighter-rouge">完全背包</code></p>
+
+<p>用<code class="highlighter-rouge">d[i]</code>表示能组成<code class="highlighter-rouge">i</code>邮资的最小邮票数量。</p>
+
+<h4 id="代码">代码</h4>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+#include &lt;map&gt;
+#define cur dp[i]
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">INF</span> <span class="o">=</span> <span class="mf">1e4</span><span class="p">;</span>  
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">maxs</span> <span class="o">=</span> <span class="mi">11</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">maxn</span> <span class="o">=</span> <span class="mi">11</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">maxval</span> <span class="o">=</span> <span class="mi">1100</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">S</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">N</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">num</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">denom</span><span class="p">[</span><span class="n">maxn</span><span class="p">][</span><span class="n">maxs</span><span class="p">];</span>
+
+<span class="kt">int</span> <span class="n">coverage</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">dp</span><span class="p">[</span><span class="n">maxval</span><span class="p">];</span>
+
+<span class="kt">int</span> <span class="nf">solve</span><span class="p">(</span><span class="kt">int</span> <span class="n">probnum</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">ans</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">INF</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">dp</span><span class="p">));</span>
+    <span class="c1">// printf("init\n");</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">[</span><span class="n">probnum</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">dp</span><span class="p">[</span><span class="n">denom</span><span class="p">[</span><span class="n">probnum</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="c1">// printf("%d ", dp[denom[probnum][i]]);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">S</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ans</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">[</span><span class="n">probnum</span><span class="p">];</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">denom</span><span class="p">[</span><span class="n">probnum</span><span class="p">][</span><span class="n">j</span><span class="p">]]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">denom</span><span class="p">[</span><span class="n">probnum</span><span class="p">][</span><span class="n">j</span><span class="p">]],</span> <span class="n">cur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">S</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">S</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// input</span>
+        <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">N</span><span class="p">);</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">num</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">denom</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+                <span class="c1">// printf("  %d", denom[i][j]);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">// printf("input complete\n");</span>
+        <span class="c1">// printf("%d", denom[0][0]);</span>
+
+        <span class="kt">int</span> <span class="n">maxcoverage</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">solutionnum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">coverage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">coverage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">maxcoverage</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">maxcoverage</span> <span class="o">=</span> <span class="n">coverage</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+                <span class="n">solutionnum</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">coverage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">maxcoverage</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">[</span><span class="n">solutionnum</span><span class="p">])</span> <span class="p">{</span>
+                    <span class="n">maxcoverage</span> <span class="o">=</span> <span class="n">coverage</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+                    <span class="n">solutionnum</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">num</span><span class="p">[</span><span class="n">solutionnum</span><span class="p">]){</span>
+                    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">if</span><span class="p">(</span><span class="n">denom</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">denom</span><span class="p">[</span><span class="n">solutionnum</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="p">{</span>
+                            <span class="n">maxcoverage</span> <span class="o">=</span> <span class="n">coverage</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+                            <span class="n">solutionnum</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+                            <span class="k">break</span><span class="p">;</span>
+                        <span class="p">}</span>
+                        <span class="k">if</span><span class="p">(</span><span class="n">denom</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">denom</span><span class="p">[</span><span class="n">solutionnum</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="k">break</span><span class="p">;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"max coverage =%4d :"</span><span class="p">,</span> <span class="n">maxcoverage</span><span class="p">);</span>  
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">[</span><span class="n">solutionnum</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%3d"</span><span class="p">,</span> <span class="n">denom</span><span class="p">[</span><span class="n">solutionnum</span><span class="p">][</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="good-coalition">Good Coalition</h3>
+
+<h4 id="题目-1">题目</h4>
+
+<p>The Dutch political system is in turmoil. There have been six coalition governments in the past fourteen years, all of which have fallen before completing their term in office. Recently there have been elections (again), the outcome of which has been described as “impossible” by several political commentators. The only bright spot in this bleak situation is that they have appointed you as the “informateur”. As the informateur it is your task to find a suitable coalition.</p>
+
+<p>Being the rational person you are, you have decided the first negotiation attempt should be started between the parties forming the most stable coalition. A coalition is formed by a set of parties having won a strict majority of seats in the election (i.e. at least 76 seats out of a total of 150). The most stable coalition is one that has the highest chance of completing its term in office. A coalition falls (and new elections must be held) if a single party leaves the coalition. The probability of a coalition completing their term is estimated by the product of the probabilities of each party in the coalition completing their term. This probability is in turn based on historical data.</p>
+
+<p>Find the best coalition and save the Netherlands from becoming a banana republic!</p>
+
+<h4 id="思路-1">思路</h4>
+
+<p><code class="highlighter-rouge">01背包</code></p>
+
+<p>用<code class="highlighter-rouge">d[i]</code>表示组成<code class="highlighter-rouge">i</code>人联盟的最大可能性。
+应该注意的是同一个政党不能被多次选择，具体处理方式（两种）见代码</p>
+
+<h4 id="代码-1">代码</h4>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;algorithm&gt;
+#include &lt;set&gt;
+#include &lt;iostream&gt;
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">maxn</span> <span class="o">=</span> <span class="mi">150</span><span class="p">;</span>
+
+<span class="kt">double</span> <span class="n">dp</span><span class="p">[</span><span class="n">maxn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+<span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">comb</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">s</span><span class="p">[</span><span class="n">maxn</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+
+<span class="kt">void</span> <span class="nf">solve</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">76</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// printf("%lf ", dp[i]);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">comb</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">count</span><span class="p">(</span><span class="n">j</span><span class="p">))</span> <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">p</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">p</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">);</span>
+                    <span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">newset</span><span class="p">(</span><span class="n">comb</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+                    <span class="n">newset</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+                    <span class="n">comb</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">=</span> <span class="n">newset</span><span class="p">;</span>
+
+                    <span class="c1">// for(auto&amp; setcontains: newset) cout &lt;&lt; setcontains &lt;&lt; ' ';</span>
+                    <span class="c1">// cout &lt;&lt; endl;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="c1">// dp[i + s[j]] = max(dp[i + s[j]], dp[i] * ((double)p[j] / 100.0));</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">solve2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>  
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">maxn</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">j</span><span class="o">--</span><span class="p">)</span>  
+            <span class="c1">// Process in reverse to avoid using party p more than once  </span>
+            <span class="c1">// See if using party p is an improvement  </span>
+            <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]]);</span>  
+
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">kases</span><span class="p">;</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">kases</span><span class="p">);</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">kase</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">kase</span> <span class="o">&lt;</span> <span class="n">kases</span><span class="p">;</span> <span class="n">kase</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">memset</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">dp</span><span class="p">));</span>
+        <span class="n">memset</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">s</span><span class="p">));</span>
+        <span class="n">memset</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">p</span><span class="p">));</span>
+        <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">n</span><span class="p">);</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">scanf</span><span class="p">(</span><span class="s">"%d %d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">solve2</span><span class="p">();</span>
+        <span class="kt">double</span> <span class="n">maxposs</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="c1">// for(int i = 76; i &lt;= 150; i++)</span>
+        <span class="c1">//     maxposs = max(maxposs, dp[i]);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">maxn</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">maxn</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span>  
+            <span class="n">maxposs</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">maxposs</span><span class="p">,</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>  
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%.6lf</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">maxposs</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+:ET
