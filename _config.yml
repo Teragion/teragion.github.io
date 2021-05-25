@@ -4,10 +4,10 @@
 permalink:           pretty
 
 # Setup
-title:                GHS Seafarer
-tagline:             'Good Luck and Fair Seas'
+title:                阿青的博客
+tagline:             '这是注释，耶！'
 description:         'descriptions will... ehh... somehow, be added'
-url:                 http://teragion.github.io
+url:                 https://teragion.github.io
 baseurl:             ''
 paginate:            1
 

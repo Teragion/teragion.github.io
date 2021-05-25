@@ -4,7 +4,7 @@ title: About
 ---
 
 <p class="message">
-  My name is Teragion, for now.
+  Personal blog of Zeyuan He. 
 </p>
 # Hello there!
 Hello there in regular font.
