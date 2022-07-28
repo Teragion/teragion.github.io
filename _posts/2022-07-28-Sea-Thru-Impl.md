@@ -6,7 +6,7 @@ usemathjax: true
 
 > Implementation is open sourced at [https://github.com/Teragion/Sea-Thru-Impl](https://github.com/Teragion/Sea-Thru-Impl)
 
-Sea-Thru is an algorithm that removes the veiling effects of water in images taken underwater. It is presented by Derya Akkaynak and Tali Treibitz at CVPR 2019.
+Sea-Thru is an algorithm that removes the veiling effects of water in images taken underwater. It is presented by Derya Akkaynak and Tali Treibitz at CVPR 2019[^fn1].
 
 Open Access: [Sea-Thru: A Method for Removing Water From Underwater Images](https://openaccess.thecvf.com/content_CVPR_2019/papers/Akkaynak_Sea-Thru_A_Method_for_Removing_Water_From_Underwater_Images_CVPR_2019_paper.pdf)
 
@@ -14,7 +14,7 @@ Bibliographic Info: [10.1109/CVPR.2019.00178](https://doi.org/10.1109/CVPR.2019.
 
 It takes the original image and a depth map of the same size for inputs, and output the recovered image. 
 
-[MiDaS](https://github.com/isl-org/MiDaS) (by Intel Intelligent Systems Lab) is a project for predicting depth map from an arbitrary image. In this implementation, we explore the possibility of using monocular depth interpreting techniques to facilitate the recovery by Sea-thru.
+[MiDaS](https://github.com/isl-org/MiDaS) (by Intel Intelligent Systems Lab) is a project for predicting depth map from an arbitrary image[^fn2]. In this implementation, we explore the possibility of using monocular depth interpreting techniques to facilitate the recovery by Sea-thru.
 
 The authors did not provide any code accompanying the original paper, hence all of the implementation is done by myself. The images and depth maps are provided by the authors (see `Data/Data.md`).
 
@@ -69,7 +69,7 @@ It is, of course, desirable if we have all those parameters in mind, but this is
 
 The first step of image reconstruction is removing the $B_c$ for each color channel. This should be easy as $B_c$ does not at all depend on the color of the original image ($J_c$), but only the depth and the invariant water background.
 
-The backscatter is estimated using this formula
+The backscatter is estimated using
 
 $$
 \begin{align*}
@@ -96,12 +96,16 @@ We then simply use `scikit-learn`'s `curve_fit` routine to find optimal paramete
 </figure>
 
 ## Computing Wideband Attenuation
-The next step would be estimating $J_c$ from $D_c$, which means to estimate $\beta^D(z)$. It turns out that a 2-term exponential is good enough for interpolating $\beta_c^D$:
+The next step would be estimating $J_c$ from $D_c$, which means to estimate $\beta^D(z)$. By the experiments of the authors of Sea-thru, it turns out that a 2-term exponential is good enough for interpolating $\beta_c^D$:
 
 $$\beta_c^D(z) = a \cdot e^{b\cdot z} + c \cdot e^{d\cdot z}$$
 
+The experiment is mainly done by tracking the color chart boards placed in the scene and see how they were attenuated.
+
+This is the major contribution of Sea-thru: instead of reusing the estimation for $\beta^B$ as $\beta^D$, the parameter for wideband attenuation is estimated in completely original way.
+
 ### Preliminary Estimation
-We use LSAC (Local Space Average Color) method to compute an illuminant map $\hat{E_c}$ for the original image.
+We use LSAC (Local Space Average Color) [^fn3] method to compute an illuminant map $\hat{E_c}$ for the original image.
 
 According to the original image, the colors should be computed as local averages of neighborhoods defined by 
 
@@ -111,7 +115,7 @@ subject to the constraint that $(x',y')$ are four-connected.
 
 However, to compute the neighborhoods in this way, it would require computation cost and storage space of $O(n^2)$ where $n$ is the resolution of the image. This is prohibitively expensive for practical situations. 
 
-Hence, instead of computing the neighborhood for each pixel, we segment the image to some neighborhoods such that each neighborhood extend in the four-connected way if the pixel next to it and the current pixel differ by less than $\epsilon$. In practice, we see that this method performs good enough.
+Hence, instead of computing the neighborhood for each pixel, we **segment** the image to some neighborhoods such that each neighborhood extend in the four-connected way if the pixel next to it and the current pixel differ by less than $\epsilon$. This means that each pixel would only be in $1$ neighborhood, $O(n)$ complexity and storage. In practice, we see that this method performs good enough.
 
 <figure>
 
@@ -141,6 +145,13 @@ $$\|\hat{z} - z\|$$
 Again, this can be done using `scikit-learn`'s `curve_fit` routine. 
 
 In our case, this interpolation is the most costly operation in the pipeline. However, this is due to we naively use the depths at all points to interpolate. A better approach may be using some downsampled points without losing too much performance. If that is done, the entire algorithm is suited for real-time purposes.
+
+### Recovery
+Finally, the original image is recovered as
+
+$$I_c = J_c \cdot e^{\beta_c^Dz}$$
+
+Afterwards, we perform some calibrations for white balance (using the grey world assumption) and exposure.
 
 ## Results and Discussion
 <figure>
@@ -194,7 +205,6 @@ This could be alleviated by retrain the model with underwater images, but unfort
 
 Nevertheless, all those methods provide acceptable results for image recovery, but obviously there is potential for improvements.
 
-
 <figure>
 
 <p align="center">
@@ -207,5 +217,40 @@ Nevertheless, all those methods provide acceptable results for image recovery, b
 
 Clearly, these methods perform well even with images where depth varies greatly. All those images somewhat suffer from a blue-ish attenuation at the far side, but again that is due to the missing of direct depth data and conservative estimation by MiDaS. Future study may be oriented in dealing with those areas. 
 
+## Notes of implementation
+This project is an implementation of the Sea-thru algorithm.
 
+The implementations for the original paper are contained in files `sea_thru.py`, `compute_illuminant.cpp`, and `simple_illuminant.cpp`.
 
+Folder `midas/` contains a fork from repository [isl-org/MiDaS](https://github.com/isl-org/MiDaS) which contains an implementation of paper *Towards Robust Monocular Depth Estimation: Mixing Datasets for Zero-Shot Cross-Dataset Transfer* from Intel ISL (please see `LICENSE_MiDaS` for permissions).
+
+`midas_helper.py` is an interface written to call MiDaS from our implementation of Sea-thru.
+
+Dependencies are those listed in `sea_thru.py` and `midas_helper.py`. Namely, the following python packages:
+
+For Sea-thru:
+* `numpy`
+* `scikit-image`
+* `scikit-learn`
+* `scipy`
+* `opencv`
+* `rawpy` (to work on apple silicon Macs, you may need to install `rawpy` from source)
+
+For MiDaS integration to work:
+* `pytorch`
+* `torchvision`
+* `timm`
+
+To compile `C++` modules including `compute_illuminant.cpp` and `simple_illuminant.cpp`, use command like 
+
+```
+/path/to/clang++ -O2 -o sillu.<OS specific suffix> -shared <src>.cpp -std=c++17 -lomp -fopenmp
+```
+where `<OS specific suffix>` is something like `.so`, `.dylib`, etc.
+
+The code is implemented and tested under macOS.
+
+## Citations
+[^fn1]: D. Akkaynak and T. Treibitz, "Sea-Thru: A Method for Removing Water From Underwater Images," 2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2019.
+[^fn2]: Ranftl, René, et al. “Towards Robust Monocular Depth Estimation: Mixing Datasets for Zero-Shot Cross-Dataset Transfer.” IEEE Transactions on Pattern Analysis and Machine Intelligence, 2020.
+[^fn3]: M. Ebner and J. Hansen. Depth map color constancy. BioAlgorithms and Med-Systems, 9(4):167–177, 2013.
