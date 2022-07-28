@@ -25,3 +25,5 @@ github:
 # Plugins
 plugins:
   - jekyll-paginate
+
+markdown: kramdown
