@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Sea-Thru-Impl
+permalink: sea-thru
 usemathjax: true
 ---
 

@@ -10,6 +10,7 @@ description:         'descriptions will... ehh... somehow, be added'
 url:                 https://teragion.github.io
 baseurl:             ''
 paginate:            1
+permalink:           pretty
 
 # About/contact
 author:
